@@ -25,15 +25,31 @@ clean:
 
 format:
 	@echo "Formatting C++ files..."
-	@find . -type f \( -name "*.cpp" -o -name "*.hpp" -o -name "*.h" \) -not -path "./build/*" | xargs clang-format -i 2>/dev/null || echo "No files to format or clang-format not installed"
+	@find . -type f \( -name "*.cpp" -o -name "*.hpp" -o -name "*.h" \) \
+		-not -path "*/build/*" \
+		-not -path "*/cmake-build-*/*" \
+		-not -path "*/_deps/*" \
+		-not -path "*/CMakeFiles/*" \
+		| xargs -r clang-format -i 2>/dev/null || echo "No files to format or clang-format not installed"
 
 format-check:
 	@echo "Checking formatting..."
-	@find . -type f \( -name "*.cpp" -o -name "*.hpp" -o -name "*.h" \) -not -path "./build/*" | xargs clang-format --dry-run --Werror 2>/dev/null || echo "No files to check or clang-format not installed"
+	@find . -type f \( -name "*.cpp" -o -name "*.hpp" -o -name "*.h" \) \
+		-not -path "*/build/*" \
+		-not -path "*/cmake-build-*/*" \
+		-not -path "*/_deps/*" \
+		-not -path "*/CMakeFiles/*" \
+		| xargs -r clang-format --dry-run --Werror 2>/dev/null || echo "No files to check or clang-format not installed"
 
 lint: configure
 	@echo "Running clang-tidy..."
-	@find . -type f -name "*.cpp" -not -path "./build/*" -not -path "./tests/*" | xargs clang-tidy -p $(BUILD_DIR) 2>/dev/null || echo "No files to lint or clang-tidy not installed"
+	@find . -type f -name "*.cpp" \
+		-not -path "*/build/*" \
+		-not -path "*/cmake-build-*/*" \
+		-not -path "*/_deps/*" \
+		-not -path "*/CMakeFiles/*" \
+		-not -path "*/tests/*" \
+		| xargs -r clang-tidy -p $(BUILD_DIR) 2>/dev/null || echo "No files to lint or clang-tidy not installed"
 
 test: build
 	@cd $(BUILD_DIR) && ctest --output-on-failure

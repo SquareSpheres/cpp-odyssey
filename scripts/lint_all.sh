@@ -1,6 +1,4 @@
 #!/bin/bash
-# Run clang-tidy on all projects
-
 set -e
 
 BUILD_DIR="${1:-build}"
@@ -13,10 +11,12 @@ fi
 
 echo "=== Running clang-tidy ==="
 
-find . -name "*.cpp" | \
-    grep -v "build/" | \
-    grep -v "tests/" | \
-    xargs clang-tidy -p "$BUILD_DIR"
+find . -type f -name "*.cpp" \
+    -not -path "*/build/*" \
+    -not -path "*/cmake-build-*/*" \
+    -not -path "*/_deps/*" \
+    -not -path "*/CMakeFiles/*" \
+    -not -path "*/tests/*" \
+    -print0 | xargs -0 -r clang-tidy -p "$BUILD_DIR"
 
 echo "=== Linting complete ==="
-
